@@ -1,4 +1,4 @@
-const GroceryList = require('./GroceryList')
+const GroceryList = require('./models/GroceryList')
 
 // GroceryList.getByID(3)
 // .then(results => {

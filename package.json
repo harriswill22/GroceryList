@@ -1,0 +1,26 @@
+{
+  "name": "GroceryList",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "debug": "node --inspect-brk index.js",
+    "dev": "nodemon index.js",
+    "reset-db": "dropdb GroceryListApp; createdb GroceryListApp; psql -f schema.sql GroceryListApp; psql -f seed.sql GroceryListApp",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/harriswill22/GroceryList.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/harriswill22/GroceryList/issues"
+  },
+  "homepage": "https://github.com/harriswill22/GroceryList#readme",
+  "dependencies": {
+    "pg-promise": "^8.5.1"
+  }
+}
