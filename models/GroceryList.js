@@ -1,75 +1,106 @@
-const pgp = require('pg-promise')();
+// DATABASE CONNECTION
 
-const db = pgp({
-    host: 'localhost',
-    port: 5432,
-    database: 'GroceryListApp'
-});
+const db = require('./db');
+
+class GroceryList {
+
+constructor(id, name, quantity, purchased) {
+this.id = id;
+this.name = name;
+this.quantity = quantity;
+this.purchased = purchased;
+}
+
+
+
 
 // CREATE 
-function addItem(name, quantity) {
+static addItem(name, quantity) {
+    console.log('about to add item');
+    
     return db.one(`insert into groceryitems (name, quantity)
     values
         ($1,$2)
-    returning id,`
+    returning id`,
     [name, quantity])
+    .then(item =>{
+        const newItem = new GroceryList(item.id, name, quantity);
+        return newItem
+    });
 }
 
 
 
 // RETRIEVE
-function getALL() {
-    return db.any('select * from groceryitems')
+static getALL() {
+    return db.any(`
+    select * from groceryitems`)
+    .then(itemArray => {
+        const instanceArray = itemArray.map(itemObj => {
+        const Allitems = new GroceryList (itemObj.id, itemObj.name, itemObj.quantity);
+        return Allitems;
+        });
+        return instanceArray;
+    })
+
 }
 
-function getByID(id) {
+static getByID(id) {
     return db.one(`select * from groceryitems where id = $1`, [id])
-    // .catch(err =>{
-    //     return {
-    //     name: 'No items found big fella'
-    //     };
-    // })
+    .then(result =>{
+        const itemID = new GroceryList(result.id, result.name, result.quantity);
+        return itemID;
+    })
 }
 
 // UPDATE
-function updateItem(id,name) {
+
+updateItem(name) {
     return db.result(`update groceryitems
     set name=$2
-    where id=$1`, [id, name]);
+    where id=$1`, [this.id, name]);
 }
 
-function updatePurchased(id, didPurchase) {
+updatePurchased(didPurchase) {
     return db.result(`update groceryitems
-    where id=$1`, [id, didPurchase])
+    set purchased=$2
+    where id=$1`, [this.id, didPurchase])
 }
 
-function markPurchased(id) {  
-    return db.result(`update groceryitems 
-    set completed=$2
-    where id=$1,` [id, true]);
+markPurchased(){  
+    return this.updatePurchased(true);
+    // return db.result(`update groceryitems 
+    // set completed=$2
+    // where id=$1,` [this.id, true]);
 }
 
-function markPending(id) {
-    return db.result(`update groceryitems
-    set completed=$2
-    where id=$1` [id, false]);
+markPending() {
+    return this.updatePurchased(false)
+    // return db.result(`update groceryitems
+    // set completed=$2
+    // where id=$1` [id, false]);
 }
 
 
 // DELETE
 
-function deleteByID(id) {
-    return db.result(` delete groceryitems where id = $1` [id])
+static deleteByID(id) {
+    return db.result(`delete from groceryitems where id = $1`, [id])
+}
+deleteByID(){
+    return db.result(` delete from groceryitems where id = $1`,[this.id])
 }
 
+}
 
-module.exports = {
-addItem,
-getALL,
-getByID,
-updatePurchased,
-updateItem,
-markPurchased,
-markPending,
-deleteByID
-};
+module.exports = GroceryList; //
+// }
+// addItem,
+// getALL,
+// getByID,
+// updatePurchased,
+// updateItem,
+// markPurchased,
+// markPending,
+// deleteByID
+// };
